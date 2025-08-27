@@ -1,0 +1,273 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import Navigation from '@/components/Navigation.vue'
+import api from '@/services/auth'
+
+const route = useRoute()
+const libraryId = route.params.id
+
+// Biblioteca e vídeos
+const library = ref(null)
+const currentVideo = ref(null) 
+const loading = ref(true)
+const showError = ref(false)
+const errorMessage = ref("")
+
+// URL da API
+const API_URL = import.meta.env.VITE_API_URL
+
+const STORAGE_URL = import.meta.env.VITE_STORAGE_URL
+const DEFAULT_IMAGE = "https://cdn1.iconfinder.com/data/icons/kuru-media/100/media_player_thin_convert-512.png"
+
+
+// Buscar biblioteca e vídeos
+const fetchLibrary = async () => {
+  loading.value = true
+  showError.value = false
+  try {
+    const response = await api.get(`/libraries/${libraryId}`)
+    library.value = response.data
+
+    currentVideo.value = null
+  } catch (err) {
+    showError.value = true
+    errorMessage.value = err.response?.data?.message || "Erro ao carregar biblioteca"
+  } finally {
+    loading.value = false
+  }
+}
+
+// Selecionar vídeo ao clicar
+const selectVideo = (video) => {
+  currentVideo.value = video
+}
+
+// thumb do vídeo
+const getVideoThumb = (video) => {
+  return `${STORAGE_URL}/${video.video_path}`
+}
+
+const openDropdown = ref(null)
+
+const toggleDropdown = (id) => {
+  openDropdown.value = openDropdown.value === id ? null : id
+}
+const removeVideo = async (id) => {
+  if (!confirm("Tens certeza que queres eliminar este vídeo?")) return
+
+  try {
+    await api.delete(`/videos/${id}`)
+    library.value.videos = library.value.videos.filter(v => v.id !== id)
+
+    openDropdown.value = null
+    successMessage.value = "Vídeo eliminado com sucesso!"
+    showSuccess.value = true
+    setTimeout(() => (showSuccess.value = false), 3000)
+  } catch (error) {
+    console.error("Erro ao eliminar vídeo:", error)
+  }
+}
+
+onMounted(() => {
+  fetchLibrary()
+})
+</script>
+
+<template>
+  <div class="bg-black min-h-screen text-white flex flex-col">
+
+    <!-- Toast Sucesso -->
+    <transition name="fade">
+      <div v-if="showSuccess" class="fixed top-4 inset-x-0 flex justify-center z-50">
+        <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+          <span class="font-semibold">{{ successMessage }}</span>
+          <button @click="showSuccess = false" class="ml-4 font-bold">×</button>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Toast Erro -->
+    <transition name="fade">
+      <div v-if="showError" class="fixed top-4 inset-x-0 flex justify-center z-50">
+        <div class="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+          <span class="font-semibold">{{ errorMessage }}</span>
+          <button @click="showError = false" class="ml-4 font-bold">×</button>
+        </div>
+      </div>
+    </transition>
+
+
+    <!-- HEADER -->
+    <header class="w-full flex items-center justify-between px-4 py-3">
+      <router-link to="/libraries" class="text-white">
+        <!-- Ícone de voltar -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </router-link>
+      <h2 class="flex-1 text-center text-base font-semibold">
+        {{ currentVideo ? currentVideo.title : library?.name }}
+      </h2>
+    </header>
+
+    <!-- Progress bar-->
+    <div class="w-full h-1 bg-gray-700">
+      <div class="h-1 bg-red-500" :style="{ width: currentVideo ? '0%' : '100%' }"></div>
+    </div>
+    <main class="flex-1 overflow-y-auto custom-scroll mb-3">
+      <section class="px-4 py-4">
+        <div class="relative rounded-xl overflow-hidden">
+          <template v-if="currentVideo">
+            <video class="w-full h-64" :src="`${STORAGE_URL}/${currentVideo.video_path}`" controls autoplay
+              playsinline></video>
+          </template>
+          <template v-else>
+            <img
+              :src="library?.thumb ? `${STORAGE_URL}/${library.thumb}` : 'https://cdn1.iconfinder.com/data/icons/kuru-media/100/media_player_thin_convert-512.png'"
+              alt="Banner da biblioteca" class="w-full h-64 object-cover" />
+            <div class="absolute inset-0 flex items-center justify-center">
+              <button class="bg-white text-black rounded-full w-12 h-12 flex items-center justify-center text-2xl">
+                ▶
+              </button>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <!-- DESCRIÇÃO -->
+      <section class="px-4 space-y-2 mt-4">
+        <div class="flex items-center justify-between">
+          <!-- Título -->
+          <h3 class="text-lg font-semibold">
+            {{ currentVideo ? currentVideo.title : library?.name }}
+          </h3>
+
+          <!-- Ícones -->
+          <div class="flex items-center space-x-3 text-gray-400">
+            <!-- Estrela -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
+              class="w-5 h-5 cursor-pointer hover:text-yellow-400">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 
+                 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+
+            <!-- Coração -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
+              class="w-5 h-5 cursor-pointer hover:text-red-500">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 
+                 2.09C13.09 3.81 14.76 3 16.5 3 
+                 19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+                 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        <p class="text-sm text-gray-400">
+          {{ currentVideo ? currentVideo.description : library?.description }}
+        </p>
+      </section>
+      <br>
+      <!-- LISTA DE VÍDEOS -->
+      <section class="px-4 mt-6 flex-1 overflow-y-auto">
+        <div class="space-y-2">
+
+          <!-- Skeleton Loader enquanto carrega -->
+          <div v-if="loading" class="space-y-2">
+            <div v-for="n in 4" :key="n" class="bg-gray-800 rounded-lg px-3 py-2 flex items-center animate-pulse">
+
+              <!-- Thumb fake -->
+              <div class="w-20 h-14 bg-gray-700 rounded-lg mr-3"></div>
+
+              <!-- Texto fake -->
+              <div class="flex-1 space-y-2">
+                <div class="h-3 bg-gray-700 rounded w-3/4"></div>
+                <div class="h-2 bg-gray-600 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de vídeos -->
+          <template v-else-if="library?.videos && library.videos.length > 0">
+            <div v-for="(video, index) in library.videos" :key="video.id"
+              class="bg-gray-900 rounded-lg px-3 py-2 flex items-center justify-between hover:bg-gray-700 relative">
+
+              <!-- Numeração -->
+              <span class="text-gray-400 w-6 text-sm">{{ index + 1 }}</span>
+
+              <!-- Thumb do vídeo -->
+              <video @click="selectVideo(video)" class="w-20 h-14 rounded-lg object-cover mr-3" :src="`${STORAGE_URL}/${video.video_path}`"
+                preload="metadata"></video>
+
+              <!-- Título + descrição -->
+              <div class="flex-1">
+                <span class="text-sm font-medium block">{{ video.title }}</span>
+                <p class="text-xs text-gray-400">
+                  {{ video.description?.length > 30 ? video.description.slice(0, 30) + '...' : video.description }}
+                </p>
+              </div>
+
+              <!-- Botão dropdown -->
+              <div class="relative">
+                <button @click.stop="toggleDropdown(video.id)" class="text-gray-400 hover:text-white">
+                  ▼
+                </button>
+
+                <!-- Dropdown -->
+                <div v-if="openDropdown === video.id"
+                  class="absolute right-0 mt-2 w-40 bg-black text-white rounded-lg shadow-lg z-50">
+                  <ul>
+                    <li>
+                      <button @click="selectVideo(video)" class="w-full text-left px-4 py-2">▶
+                        Reproduzir</button>
+                    </li>
+                    <li>
+                      <button @click="removeVideo(video.id)"
+                        class="w-full text-left px-4 py-2 text-red-600">🗑 Eliminar</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Caso não haja vídeos -->
+          <div v-else class="text-center text-gray-400 mt-10">
+            Nenhum vídeo disponível nesta biblioteca.
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <br><br>
+    <br><br>
+    <!-- MENU FIXO -->
+    <Navigation />
+
+  </div>
+</template>
+
+
+<script>
+
+import Navigation from "@/components/Navigation.vue";
+import { getUser } from "@/services/auth"
+
+export default {
+  name: 'LibraryVideo',
+  components: { Navigation },
+
+  data() {
+    return {
+      user: null
+    }
+  },
+  async mounted() {
+    this.user = await getUser()
+  }
+}
+</script>
