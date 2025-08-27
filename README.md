@@ -52,7 +52,7 @@ src/
 Clone o repositório e instale as dependências:
 
 ```bash
-git clone https://github.com/seu-usuario/video-app-frontend.git
+git clone [https://github.com/seu-usuario/video-app-frontend.git](https://github.com/joasumbo/victus.git)
 cd video-app-frontend
 npm install
 ```
