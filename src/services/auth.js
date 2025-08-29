@@ -38,11 +38,17 @@ export async function getUser() {
                 Authorization: `Bearer ${token}`
             }
         })
+        localStorage.setItem("user", JSON.stringify(response.data.user))
         return response.data
     } catch (error) {
         console.error("Erro ao buscar usuário:", error)
         return null
     }
+}
+
+export const updateProfile = async (form) => {
+  const response = await api.put("/me/update", form)
+  return response.data
 }
 
 

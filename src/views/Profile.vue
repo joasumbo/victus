@@ -13,10 +13,10 @@ const showSuccess = ref(false)
 const successMessage = ref("")
 
 // opções do perfil
-const profileOptions = ref([
-  { name: "Editar Perfil", action: () => router.push("/edit-profile") },
-  { name: "Alterar Senha", action: () => router.push("/change-password") },
-  { name: "Configurações", action: () => router.push("/settings") },
+const profileOptions = ref([ 
+  { name: "Editar Perfil", action: () => router.push("/profile/edit") },
+  { name: "Alterar Senha", action: () => router.push("/profile/edit") },
+  { name: "Configurar Banner", action: () => router.push("/banner/show") },
   { name: "Sair", action: () => handleLogout() }
 ])
 

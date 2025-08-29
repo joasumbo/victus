@@ -4,10 +4,14 @@ import Navigation from "@/components/Navigation.vue"
 import api from "@/services/auth"
 import { useRouter } from 'vue-router'
 
+import ModalAdd from "@/components/ModalAdd.vue";
+
 const libraries = ref([])
 const loading = ref(true)
 const showError = ref(false)
 const errorMessage = ref("")
+
+const isModalOpen = ref(false);
 
 const router = useRouter()
 
@@ -80,12 +84,25 @@ onMounted(() => {
 
     <!-- HEADER -->
     <header class="w-full flex justify-center px-6 py-4 border-b border-gray-100">
-      <div class="w-full max-w-sm sm:max-w-md flex items-center">
+      <div class="w-full flex items-center">
         <h2 class="flex-1 text-center text-lg font-bold">Bibliotecas</h2>
+
+        <!-- Botão com ícone plus (SVG direto) -->
+        <button class="ml-3 p-2 rounded-full bg-gray-100 hover:bg-gray-600 text-blak shadow"
+          @click="isModalOpen = true">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+            <path fill-rule="evenodd"
+              d="M12 4.5a.75.75 0 01.75.75v6h6a.75.75 0 010 1.5h-6v6a.75.75 0 01-1.5 0v-6h-6a.75.75 0 010-1.5h6v-6A.75.75 0 0112 4.5z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
       </div>
     </header>
 
     <br>
+
+    
+  <ModalAdd v-model="isModalOpen" />
 
     <!-- CONTEÚDO -->
     <main class="flex-1 flex flex-col items-center justify-start px-6 mt-6">

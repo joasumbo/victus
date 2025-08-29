@@ -1,9 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { HomeIcon, PlusIcon, BookOpenIcon, UserIcon } from '@heroicons/vue/24/outline';
-import ModalAdd from "@/components/ModalAdd.vue";
 
-const isModalOpen = ref(false);
 </script>
 
 <template>
@@ -23,16 +21,24 @@ const isModalOpen = ref(false);
 
     <!-- Plano -->
     <div class="flex flex-col items-center">
-      <BookOpenIcon class="w-6 h-6" />
-      <span class="text-xs">Plano</span>
+      <router-link to="/events/show">
+        <center>
+          <BookOpenIcon class="w-6 h-6" />
+          <span class="text-xs">Plano</span>
+        </center>
+      </router-link>
     </div>
 
     <!-- Botão + -->
     <div class="flex flex-col items-center -mt-6">
-      <div @click="isModalOpen = true" class="cursor-pointer bg-text-primary rounded-full p-3 shadow-lg"
-        style="padding: 0.8rem 0.9rem !important;">
-        <PlusIcon class="w-6 h-6 text-white" />
-      </div>
+      <router-link :to="{ name: 'weight-create' }" class="text-gray-500">
+        <center>
+          <div class="cursor-pointer bg-text-primary rounded-full p-3 shadow-lg"
+            style="padding: 0.8rem 0.9rem !important;">
+            <PlusIcon class="w-6 h-6 text-white" />
+          </div>
+        </center>
+      </router-link>
     </div>
 
     <!-- Biblioteca -->
@@ -56,5 +62,4 @@ const isModalOpen = ref(false);
     </div>
   </nav>
 
-  <ModalAdd v-model="isModalOpen" />
 </template>

@@ -76,7 +76,7 @@
           <!-- Links -->
           <p class="text-center text-sm text-gray-500">
             Esqueceste-te da palavra-passe?
-            <a href="#" class="text-pink-500 font-medium">Recuperar</a>
+            <router-link to="/forgot-password" class="text-pink-500 font-medium">Recuperar</router-link>
           </p>
 
           <p class="text-center text-sm text-gray-500">

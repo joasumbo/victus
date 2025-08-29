@@ -10,9 +10,21 @@ body{
     font-weight: 600 !important;
     margin-top: 0.8rem;
 }
-
+.color-icons-default{
+  color: #c4857e !important;
+}
+.bg-progress{
+background-color: #c4857e !important;
+}
+.bg-play{
+  background-color: #b48a25 !important;
+}
 .bg-text-primary{
     background-color: #c4857e !important;
+}
+.bg-play-next{
+  background-color: #2a2a2a !important;
+  border-radius: 55px !important;
 }
 
 .bg-text-primary:hover{
